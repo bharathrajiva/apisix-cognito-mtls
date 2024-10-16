@@ -1,0 +1,146 @@
+apisix:
+  ssl:
+    ssl_trusted_certificate: /usr/local/apisix/certs/ca.crt
+  enable_admin: true
+deployment:
+  role: traditional
+  role_traditional:
+    config_provider: etcd
+  admin:                       
+    admin_key_required: true   
+    admin_key:
+      -
+        name: admin
+        key: SuperDuperAPIKey
+        role: admin   
+
+    enable_admin_cors: true       # Enable Admin API CORS response header `Access-Control-Allow-Origin`.
+    allow_admin:                  # Limit Admin API access by IP addresses.
+     - 127.0.0.0/24              # If not set, any IP address is allowed.
+     - "::/64"
+     - 0.0.0.0/0
+    admin_listen:                 # Set the Admin API listening addresses.
+      ip: 0.0.0.0                 # Set listening IP.
+      port: 9180                  # Set listening port. Beware of port conflict with node_listen.
+
+    admin_api_version: v3         # Set the version of Admin API (latest: v3).
+  etcd:
+    host:
+      - "https://ETCD:2379"
+    tls:
+      cert: /usr/local/apisix/certs/apisix-dashboard.crt
+      key: /usr/local/apisix/certs/apisix-dashboard.key
+plugins:
+  - bauth
+nginx_config:                     # config for render the template to generate nginx.conf
+  #user: root                     # specifies the execution user of the worker process.
+                                  # the "user" directive makes sense only if the master process runs with super-user privileges.
+                                  # if you're not root user,the default is current user.
+  error_log: logs/error.log
+  error_log_level:  warn          # warn,error
+  worker_processes: auto          # if you want use multiple cores in container, you can inject the number of cpu as environment variable "APISIX_WORKER_PROCESSES"
+  enable_cpu_affinity: true       # enable cpu affinity, this is just work well only on physical machine
+  worker_rlimit_nofile: 20480     # the number of files a worker process can open, should be larger than worker_connections
+  worker_shutdown_timeout: 240s   # timeout for a graceful shutdown of worker processes
+
+  max_pending_timers: 16384       # increase it if you see "too many pending timers" error
+  max_running_timers: 4096        # increase it if you see "lua_max_running_timers are not enough" error
+
+  event:
+    worker_connections: 10620
+  #envs:                          # allow to get a list of environment variables
+  #  - TEST_ENV
+
+  stream:
+    enable_access_log: false         # enable access log or not, default false
+    access_log: logs/access_stream.log
+    access_log_format: "$remote_addr [$time_local] $protocol $status $bytes_sent $bytes_received $session_time"
+                                            # create your custom log format by visiting http://nginx.org/en/docs/varindex.html
+    access_log_format_escape: default       # allows setting json or default characters escaping in variables
+    lua_shared_dict:
+      etcd-cluster-health-check-stream: 10m
+      lrucache-lock-stream: 10m
+      plugin-limit-conn-stream: 10m
+
+  # As user can add arbitrary configurations in the snippet,
+  # it is user's responsibility to check the configurations
+  # don't conflict with APISIX.
+  main_configuration_snippet: |
+    # Add custom Nginx main configuration to nginx.conf.
+    # The configuration should be well indented!
+  http_configuration_snippet: |
+    # Add custom Nginx http configuration to nginx.conf.
+    # The configuration should be well indented!
+  http_server_configuration_snippet: |
+    # Add custom Nginx http server configuration to nginx.conf.
+    # The configuration should be well indented!
+  http_server_location_configuration_snippet: |
+    # Add custom Nginx http server location configuration to nginx.conf.
+    # The configuration should be well indented!
+  http_admin_configuration_snippet: |
+    # Add custom Nginx admin server configuration to nginx.conf.
+    # The configuration should be well indented!
+  http_end_configuration_snippet: |
+    # Add custom Nginx http end configuration to nginx.conf.
+    # The configuration should be well indented!
+  stream_configuration_snippet: |
+    # Add custom Nginx stream configuration to nginx.conf.
+    # The configuration should be well indented!
+
+  http:
+    enable_access_log: true         # enable access log or not, default true
+    access_log: logs/access.log
+    access_log_format: "$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\""
+    access_log_format_escape: default       # allows setting json or default characters escaping in variables
+    keepalive_timeout: 60s          # timeout during which a keep-alive client connection will stay open on the server side.
+    client_header_timeout: 60s      # timeout for reading client request header, then 408 (Request Time-out) error is returned to the client
+    client_body_timeout: 60s        # timeout for reading client request body, then 408 (Request Time-out) error is returned to the client
+    client_max_body_size: 0         # The maximum allowed size of the client request body.
+                                    # If exceeded, the 413 (Request Entity Too Large) error is returned to the client.
+                                    # Note that unlike Nginx, we don't limit the body size by default.
+
+    send_timeout: 10s              # timeout for transmitting a response to the client.then the connection is closed
+    underscores_in_headers: "on"   # default enables the use of underscores in client request header fields
+    real_ip_header: X-Real-IP      # http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_header
+    real_ip_recursive: "off"       # http://nginx.org/en/docs/http/ngx_http_realip_module.html#real_ip_recursive
+    real_ip_from:                  # http://nginx.org/en/docs/http/ngx_http_realip_module.html#set_real_ip_from
+      - 127.0.0.1
+      - "unix:"
+    custom_lua_shared_dict:       # add custom shared cache to nginx.conf
+      bcache: 100m       # custom shared cache, format: `cache-key: cache-size`
+
+    # Enables or disables passing of the server name through TLS Server Name Indication extension (SNI, RFC 6066)
+    # when establishing a connection with the proxied HTTPS server.
+    proxy_ssl_server_name: true
+    upstream:
+      keepalive: 320                # Sets the maximum number of idle keepalive connections to upstream servers that are preserved in the cache of each worker process.
+                                    # When this number is exceeded, the least recently used connections are closed.
+      keepalive_requests: 1000      # Sets the maximum number of requests that can be served through one keepalive connection.
+                                    # After the maximum number of requests is made, the connection is closed.
+      keepalive_timeout: 60s        # Sets a timeout during which an idle keepalive connection to an upstream server will stay open.
+    charset: utf-8                  # Adds the specified charset to the "Content-Type" response header field, see
+                                    # http://nginx.org/en/docs/http/ngx_http_charset_module.html#charset
+    variables_hash_max_size: 2048   # Sets the maximum size of the variables hash table.
+
+    lua_shared_dict:
+      internal-status: 10m
+      plugin-limit-req: 10m
+      plugin-limit-count: 10m
+      prometheus-metrics: 10m
+      plugin-limit-conn: 10m
+      upstream-healthcheck: 10m
+      worker-events: 10m
+      lrucache-lock: 10m
+      bcache: 10m
+      balancer-ewma: 10m
+      balancer-ewma-locks: 10m
+      balancer-ewma-last-touched-at: 10m
+      plugin-limit-count-redis-cluster-slot-lock: 1m
+      tracing_buffer: 10m
+      plugin-api-breaker: 10m
+      etcd-cluster-health-check: 10m
+      discovery: 1m
+      jwks: 1m
+      introspection: 10m
+      access-tokens: 1m
+      ext-plugin: 1m
