@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  etcd:
+    image: bitnami/etcd:3.5.7
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=https://etcd:2379
+      - ETCD_LISTEN_CLIENT_URLS=https://0.0.0.0:2379
+      - ETCD_CLIENT_CERT_AUTH=true
+      - ETCD_CERT_FILE=/opt/bitnami/etcd/certs/etcd.crt
+      - ETCD_KEY_FILE=/opt/bitnami/etcd/certs/etcd.key
+      - ETCD_TRUSTED_CA_FILE=/opt/bitnami/etcd/certs/ca.crt
+    volumes:
+      - ./mtls-apisix-etcd:/opt/bitnami/etcd/certs
+      - etcd_data:/etcd-data
+    ports:
+     - target: 2379
+       published: 2379
+       mode: host
+  apisix:
+    image: apache/apisix:3.7.0-debian
+    environment:
+      - APISIX_DEPLOYMENT_ETCD_HOST=["https://etcd:2379"]
+    volumes:
+      - ./mtls-apisix-etcd:/usr/local/apisix/certs
+      - ./config.yaml:/usr/local/apisix/conf/config.yaml
+      - ./bauth.lua:/usr/local/apisix/apisix/plugins/bauth.lua
+    ports:
+     - target: 9080
+       published: 9080
+       mode: host
+     - target: 9443
+       published: 9443
+       mode: host
+     - target: 9180
+       published: 9180
+       mode: host
+     - target: 9091
+       published: 9091
+       mode: host
+  apisix-dashboard:
+    image: apache/apisix-dashboard:latest
+    volumes:
+      - ./conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
+      - ./schema.json:/usr/local/apisix-dashboard/conf/schema.json
+      - ./mtls-apisix-etcd:/usr/local/apisix-dashboard/certs
+      - ./bauth.lua:/usr/local/apisix/bauth.lua
+    ports:
+     - target: 7777
+       published: 7777
+       mode: host
+volumes:
+  etcd_data:
