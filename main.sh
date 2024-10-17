@@ -52,7 +52,7 @@ if  [ "$setup" == "yes" ]; then
         sleep 5
         echo -ne "\033[1;34mℹ️ Generating mTLS certificates... \033[0m\r"
         echo -ne '\n'
-        mkdir -p ./mtls-apisix-etcd
+        mkdir -p ./mtls-apisix-etcd ./etcd-data ./backup/etcd
         ############################################################################################################
         ### ca
         openssl genpkey -algorithm RSA -out ./mtls-apisix-etcd/ca.key -pkeyopt rsa_keygen_bits:2048 > /dev/null 2>&1
@@ -74,7 +74,8 @@ if  [ "$setup" == "yes" ]; then
             sudo cp /etc/letsencrypt/live/$domain_name/fullchain.pem ./mtls-apisix-etcd/fullchain.pem
             sudo cp /etc/letsencrypt/live/$domain_name/privkey.pem ./mtls-apisix-etcd/privkey.pem
             sudo chmod 644 ./mtls-apisix-etcd/*
-            sudo chown -R ubuntu:ubuntu ./mtls-apisix-etcd
+            sudo chown -R ubuntu:ubuntu ./mtls-apisix-etcd ./etcd-data ./backup/etcd
+            sudo chown -hR 1001:1001 /home/ubuntu/docker/api-gateway/etcd-data
             sudo chmod -R a+r ./mtls-apisix-etcd
             print_success "Successfully copied Let's Encrypt certificates."
         else
@@ -84,9 +85,9 @@ if  [ "$setup" == "yes" ]; then
         print_success "Successfully generated mTLS certificates."
         docker stack deploy swarm --compose-file ./apiGateway.yml > /dev/null 2>&1
         echo -ne '\033[1;34mℹ️ Deploying the API Gateway services. (33%)\033[0m\r'
-        sleep 1
+        sleep 4
         echo -ne '\033[1;34mℹ️ Deploying the API Gateway services.. (66%)\033[0m\r'
-        sleep 2
+        sleep 8
         echo -ne '\033[1;34mℹ️ Deploying the API Gateway services... (100%)\033[0m\r'
         echo -ne '\n'
         print_success "The API Gateway services were deployed successfully."

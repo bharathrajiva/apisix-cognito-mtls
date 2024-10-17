@@ -12,7 +12,7 @@ services:
       - ETCD_TRUSTED_CA_FILE=/opt/bitnami/etcd/certs/ca.crt
     volumes:
       - ./mtls-apisix-etcd:/opt/bitnami/etcd/certs
-      - etcd_data:/etcd-data
+      - ./etcd-data:/bitnami/etcd/data
     ports:
      - target: 2379
        published: 2379

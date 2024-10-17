@@ -90,6 +90,53 @@ docker service rm swarm_apisix swarm_apisix-dashboard swarm_etcd
 ## Visuals
 ![alt text](image.png)
 
+## API Gateway Sync etcd Database Utility Tool
+
+This script provides a utility for managing and synchronizing etcd database snapshots from a local instance to a remote server using SSH. It ensures your etcd data is properly backed up and restored across environments, allowing for seamless recovery and deployment.
+
+### Features
+
+- Installs required dependencies (`jq`, `yq`).
+- Takes a snapshot of the etcd database on the local server.
+- Copies the snapshot to a remote server via SSH.
+- Takes of the etcd database on the  remote server.
+- Restarts the etcd service on the remote server after restoring the snapshot.
+- Provides a user-friendly interface with color-coded messages for success, error, and informational messages.
+
+### Prerequisites
+
+Before running the script, ensure that the following dependencies are installed:
+
+- **curl**: For API requests.
+- **ssh**: For secure communication with the remote server.
+- **jq**: For processing JSON data.
+- **yq**: For processing YAML data.
+- **docker**: For managing containers on the local and remote server.
+
+To install `jq` and `yq`, use the following commands:
+
+```bash
+sudo apt-get install jq -y
+sudo snap install yq -y
+```
+
+### Usage
+
+1. **Make the script executable:**
+   ```bash
+   chmod +x sync_db.sh
+   ```
+
+2. **Run the script:**
+   ```bash
+   sudo bash sync_db.sh
+   ```
+
+3. **Follow the prompts:**
+   - Enter the **remote server IP**.
+   - Enter the **path to your SSH PEM key**.
+
+
 ## Adding domain certificates to APISIX
 ```
 curl -i http://127.0.0.1:9180/apisix/admin/ssls/1 \
