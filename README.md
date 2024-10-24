@@ -248,4 +248,4 @@ The script will fetch routes from the local APISIX instance and apply them to th
 ``` Bharath Rajiv A ```
 
 ## Project status
-``` Close Out Phase ```
+``` Closed ```
