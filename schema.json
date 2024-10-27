@@ -3246,6 +3246,90 @@
 				"$comment": "this is a mark for our injected plugin schema"
 			}
 },
+"redirect": {
+	"priority": 900,
+	"schema": {
+		"$comment": "this is a mark for our injected plugin schema",
+		"oneOf": [
+			{
+				"required": [
+					"uri"
+				]
+			},
+			{
+				"required": [
+					"regex_uri"
+				]
+			},
+			{
+				"required": [
+					"http_to_https"
+				]
+			}
+		],
+		"properties": {
+			"_meta": {
+				"properties": {
+					"disable": {
+						"type": "boolean"
+					},
+					"error_response": {
+						"oneOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "object"
+							}
+						]
+					},
+					"filter": {
+						"description": "filter determines whether the plugin needs to be executed at runtime",
+						"type": "array"
+					},
+					"priority": {
+						"description": "priority of plugins by customized order",
+						"type": "integer"
+					}
+				},
+				"type": "object"
+			},
+			"append_query_string": {
+				"default": false,
+				"type": "boolean"
+			},
+			"encode_uri": {
+				"default": false,
+				"type": "boolean"
+			},
+			"http_to_https": {
+				"type": "boolean"
+			},
+			"regex_uri": {
+				"description": "params for generating new uri that substitute from client uri, first param is regular expression, the second one is uri template",
+				"items": {
+					"description": "regex uri",
+					"type": "string"
+				},
+				"maxItems": 2,
+				"minItems": 2,
+				"type": "array"
+			},
+			"ret_code": {
+				"default": 302,
+				"minimum": 200,
+				"type": "integer"
+			},
+			"uri": {
+				"minLength": 2,
+				"pattern": "(\\\\\\$[0-9a-zA-Z_]+)|\\$\\{([0-9a-zA-Z_]+)\\}|\\$([0-9a-zA-Z_]+)|(\\$|[^$\\\\]+)",
+				"type": "string"
+			}
+		},
+		"type": "object"
+	},
+	"version": 0.1
+},
 "aws-lambda": {
 	"priority": -1899,
 	"schema": {
@@ -5601,90 +5685,6 @@
 		"required": [
 			"source"
 		],
-		"type": "object"
-	},
-	"version": 0.1
-},
-"redirect": {
-	"priority": 900,
-	"schema": {
-		"$comment": "this is a mark for our injected plugin schema",
-		"oneOf": [
-			{
-				"required": [
-					"uri"
-				]
-			},
-			{
-				"required": [
-					"regex_uri"
-				]
-			},
-			{
-				"required": [
-					"http_to_https"
-				]
-			}
-		],
-		"properties": {
-			"_meta": {
-				"properties": {
-					"disable": {
-						"type": "boolean"
-					},
-					"error_response": {
-						"oneOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "object"
-							}
-						]
-					},
-					"filter": {
-						"description": "filter determines whether the plugin needs to be executed at runtime",
-						"type": "array"
-					},
-					"priority": {
-						"description": "priority of plugins by customized order",
-						"type": "integer"
-					}
-				},
-				"type": "object"
-			},
-			"append_query_string": {
-				"default": false,
-				"type": "boolean"
-			},
-			"encode_uri": {
-				"default": false,
-				"type": "boolean"
-			},
-			"http_to_https": {
-				"type": "boolean"
-			},
-			"regex_uri": {
-				"description": "params for generating new uri that substitute from client uri, first param is regular expression, the second one is uri template",
-				"items": {
-					"description": "regex uri",
-					"type": "string"
-				},
-				"maxItems": 2,
-				"minItems": 2,
-				"type": "array"
-			},
-			"ret_code": {
-				"default": 302,
-				"minimum": 200,
-				"type": "integer"
-			},
-			"uri": {
-				"minLength": 2,
-				"pattern": "(\\\\\\$[0-9a-zA-Z_]+)|\\$\\{([0-9a-zA-Z_]+)\\}|\\$([0-9a-zA-Z_]+)|(\\$|[^$\\\\]+)",
-				"type": "string"
-			}
-		},
 		"type": "object"
 	},
 	"version": 0.1
