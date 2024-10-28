@@ -59,7 +59,7 @@ if  [ "$setup" == "yes" ]; then
         openssl req -x509 -new -key ./mtls-apisix-etcd/ca.key -out ./mtls-apisix-etcd/ca.crt -days 365 -subj "/CN=Private CA" > /dev/null 2>&1
         ### etcd
         openssl genpkey -algorithm RSA -out ./mtls-apisix-etcd/etcd.key -pkeyopt rsa_keygen_bits:2048 > /dev/null 2>&1
-        openssl req -new -key ./mtls-apisix-etcd/etcd.key -out ./mtls-apisix-etcd/etcd.csr -subj "/CN=etcd-server" -reqexts san -config <(cat /etc/ssl/openssl.cnf <(printf "[san]\nsubjectAltName=DNS:etcd,DNS:127.0.0.1")) > /dev/null 2>&1
+        openssl req -new -key ./mtls-apisix-etcd/etcd.key -out ./mtls-apisix-etcd/etcd.csr -subj "/CN=etcd" -reqexts san -config <(cat /etc/ssl/openssl.cnf <(printf "[san]\nsubjectAltName=DNS:etcd,DNS:127.0.0.1")) > /dev/null 2>&1
         openssl x509 -req -in ./mtls-apisix-etcd/etcd.csr -CA ./mtls-apisix-etcd/ca.crt -CAkey ./mtls-apisix-etcd/ca.key -CAcreateserial -out ./mtls-apisix-etcd/etcd.crt -days 365 -sha256 -extfile <(printf "subjectAltName=DNS:etcd,DNS:127.0.0.1") > /dev/null 2>&1
         ### apisix
         openssl genpkey -algorithm RSA -out ./mtls-apisix-etcd/apisix.key -pkeyopt rsa_keygen_bits:2048 > /dev/null 2>&1
