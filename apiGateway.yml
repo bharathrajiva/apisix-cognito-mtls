@@ -45,6 +45,7 @@ services:
       - ./schema.json:/usr/local/apisix-dashboard/conf/schema.json
       - ./mtls-apisix-etcd:/usr/local/apisix-dashboard/certs
       - ./bauth.lua:/usr/local/apisix/bauth.lua
+      - ./redirect.lua:/usr/local/apisix/apisix/plugins/redirect.lua
     ports:
      - target: 7777
        published: 7777

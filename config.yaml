@@ -32,6 +32,7 @@ deployment:
       key: /usr/local/apisix/certs/apisix-dashboard.key
 plugins:
   - bauth
+  - redirect
 nginx_config:                     # config for render the template to generate nginx.conf
   #user: root                     # specifies the execution user of the worker process.
                                   # the "user" directive makes sense only if the master process runs with super-user privileges.
