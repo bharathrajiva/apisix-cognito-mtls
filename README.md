@@ -85,6 +85,8 @@ docker service rm swarm_apisix swarm_apisix-dashboard swarm_etcd
 
 - Ensure that your domain is correctly configured in your DNS settings.
 - Update your `bauth.lua` file with any required configurations for your specific use case.
+- Also checkout the new redirect plugin.
+
 
 ---
 ## Visuals
